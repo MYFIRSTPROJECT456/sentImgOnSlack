@@ -22,43 +22,54 @@ const client = new WebClient(process.env.BOT_TOKEN, {
 
 
 // The name of the file you're going to upload
-const fileName = "./flower.gif";
+// const fileName = "./flower.gif";
 // ID of channel that you want to upload file to
 const channelId = "C03NQ5HKBV4";
+const pathToFile = path.join(__dirname, 'screenshot.png');
 
+
+if (fs.existsSync(pathToFile)) {
+    // path exists
+    console.log("exists:", pathToFile);
+    fs.unlinkSync(pathToFile)
+    console.log("Successfully deleted the file.")
+} else {
+    console.log("DOES NOT exist:", pathToFile);
+}
+(async () => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto('file:///C:/Users/dchde/OneDrive/Desktop/hii.html');
+
+
+    await page.screenshot({                      // Screenshot the website using defined options
+
+        path: "./screenshot.png",                   // Save the screenshot in current directory
+
+        fullPage: false                              // take a fullpage screenshot
+
+    });
+    await browser.close();
+    test();
+})();
 async function test() {
     try {
-        (async () => {
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
-            await page.goto('https://www.freecodecamp.org/');
 
-
-            await page.screenshot({                      // Screenshot the website using defined options
-
-                path: "./screenshot.png",                   // Save the screenshot in current directory
-
-                fullPage: true                              // take a fullpage screenshot
-
-            });
-            await browser.close();
-        })();
         // Call the files.upload method using the WebClient
         const result = await client.files.upload({
             // channels can be a list of one to many strings
             channels: channelId,
             initial_comment: "Here\'s my file :smile:",
             // Include your filename in a ReadStream here
-            file: fs.createReadStream(path.join(__dirname, 'screenshot.png'))
+            file: fs.createReadStream(pathToFile)
         });
-
         console.log(result);
     }
     catch (error) {
         console.error(error);
     }
 }
-test();
+
 
 // const bot = new SlackBot({
 //     token: `${process.env.BOT_TOKEN}`,
